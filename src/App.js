@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import queryString from 'query-string';
-import YouTube from 'react-youtube';
+import YoutubePlayer from './YoutubePlayer.js';
+import { getUserData, getCurrentSongData}  from './SpotifyManager';
 
 
 let defaultStyle = {
@@ -21,47 +22,52 @@ class App extends Component {
       name: '',
       artist:''
     }
+
+    this.userData = {};
+    this.songData = {};
+    
   }
   componentDidMount() {
     let parsed = queryString.parse(window.location.search);
     let accessToken = parsed.access_token;
 
-    if(!accessToken) return;
-    
-    fetch('https://api.spotify.com/v1/me',{
-      headers: {'Authorization': 'Bearer ' + accessToken}
-    }).then(response => response.json())
-    .then(data => this.setState({serverData: {user: {name: data.display_name}}}));  
+    let _userData = getUserData(accessToken);
+    if(_userData) this.userData = _userData;
+    console.log(this.userData);
 
-    fetch('https://api.spotify.com/v1/me/player/currently-playing',{
-      headers: {'Authorization': 'Bearer ' + accessToken}
-    }).then(response => response.json())
-    .then(data => {
-      if(!data.item) return;
-      this.setState({songData: data.item});
-    });
+    let _songData = getCurrentSongData(accessToken);
+    if(_songData) this.songData = _songData;
+    console.log(this.songData);
+
+    if(!accessToken) return; 
+
+    // this.update(accessToken);
+    // setInterval(() => {   
+    //   this.update(accessToken);
+    // }, 10000)
+  }
+
+  update(accessToken){
     this.GetCurrentSong(accessToken);
 
-    setInterval(() => {   
-      this.GetCurrentSong(accessToken);
+    if(this.prevSong.name === this.state.songData.name && this.prevSong.artist === this.state.songData.artists[0].name)
+    {
+      console.log('El video no a cambiado');
+      return;
+    }
 
-      if(this.prevSong.name === this.state.songData.name && this.prevSong.artist === this.state.songData.artists[0].name)
-      {
-        console.log('El video no a cambiado');
-        return;
-      }
+    console.log('El video cambio');        
+    this.prevSong.name = this.state.songData.name;
+    if(this.state.songData.artists)
+    this.prevSong.artist = this.state.songData.artists[0].name; 
 
-      console.log('El video cambio');        
-      this.prevSong.name = this.state.songData.name;
-      this.prevSong.artist = this.state.songData.artists[0].name; 
-
+    if(this.state.songData.artists)
+    {
       let search = encodeURI(this.state.songData.name + ' ' + this.state.songData.artists[0].name);
       this.GetUrlYoutube(search);
-    }, 5000)
-
-
-
+    }
   }
+
 
   GetCurrentSong(accessToken) {
     console.log('Obteniendo la cancion Actual Spotify')
@@ -93,7 +99,7 @@ class App extends Component {
     return (
       <div className="App">
         {
-          this.state.serverData.user ?
+          this.userData ?
           <div>
             <h1 style={{...defaultStyle, 'fontSize': '54px'}}>Vispotify</h1>
             <h2 style={{...defaultStyle, 'fontSize': '34px'}}>See your music</h2>
@@ -115,32 +121,5 @@ class App extends Component {
       </div>
     );
   }
-}
-
-
-class YoutubePlayer extends Component
-{
-  render()
-  {
-    const opts = {
-      height: '390',
-      width: '640',
-      playerVars: { // https://developers.google.com/youtube/player_parameters
-        autoplay: 1
-      }
-    }
-    return(
-    <YouTube
-        videoId={this.props.videoId}
-        opts={opts}
-        onEnd={this._onEnded}
-      />
-    );
-  }
-
-  _onEnded(event) {
-    console.log('Fin del video');
-  }
-
 }
 export default App;
