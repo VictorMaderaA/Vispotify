@@ -3,7 +3,7 @@ import './App.css';
 import queryString from 'query-string';
 import YoutubePlayer from './YoutubePlayer.js';
 import { getUserData, getCurrentSongData}  from './SpotifyManager';
-import { stringify } from 'querystring';
+import { getYoutubeSearchId } from './YoutubeManager'
 
 
 let defaultStyle = {
@@ -22,6 +22,10 @@ class App extends Component {
 
       song_name: null,
       song_artist: null,
+      song_duration_ms: null,
+      song_id: null,
+
+      youtube_url: null,
 
       logged_in: null
     }
@@ -44,31 +48,17 @@ class App extends Component {
     getUserData(accessToken);
 
     this.startFetchingData(accessToken);
-
-
-
-    // let _songData = getCurrentSongData(accessToken);
-    // if(_songData) this.songData = _songData;
-    // console.log(this.songData);
-
-   
-
-    // this.update(accessToken);
-    // setInterval(() => {   
-    //   this.update(accessToken);
-    // }, 10000)
   }
 
   startFetchingData = async(accessToken) => {
-    // getUserData(accessToken).then(data => this.setUserData(data));
     let _userData = await getUserData(accessToken);
-    let _songData = await getCurrentSongData(accessToken);
 
-    console.log(JSON.stringify(_songData));
-
-    this.setUserData(_userData);
-    //this.setSongData(_songData);
-    this.setState({logged_in: true});
+    if(_userData)
+    {
+      this.setUserData(_userData);
+      this.setState({logged_in: true});
+      this.update_checkCurrentSong(accessToken);
+    }
   }
 
 
@@ -80,47 +70,30 @@ class App extends Component {
   }
 
   setSongData = (data) => {
-    this.setState({user_display_name: data.display_name});
-    this.setState({user_email: data.email});
-    this.setState({user_id: data.id});
-    this.setState({user_image_url: data.images[0].url});
+    this.setState({song_name: data.item.name});
+    this.setState({song_artist: data.item.artists[0].name});
+    this.setState({song_id: data.item.id});
+    this.setState({song_duration_ms: data.duration_ms});
   }
 
-  update(accessToken){
-    this.GetCurrentSong(accessToken);
+  update_checkCurrentSong = async (accessToken) => {    
+    let _songData = await getCurrentSongData(accessToken);
 
-    if(this.prevSong.name === this.state.songData.name && this.prevSong.artist === this.state.songData.artists[0].name)
-    {
-      console.log('El video no a cambiado');
-      return;
-    }
+    if(!_songData) return;
+    if(this.state.song_id === _songData.item.id) return
 
-    console.log('El video cambio');        
-    this.prevSong.name = this.state.songData.name;
-    if(this.state.songData.artists)
-    this.prevSong.artist = this.state.songData.artists[0].name; 
+    this.setSongData(_songData);
 
-    if(this.state.songData.artists)
-    {
-      let search = encodeURI(this.state.songData.name + ' ' + this.state.songData.artists[0].name);
-      this.GetUrlYoutube(search);
-    }
+    let _search = this.getEncodedSearchUri(this.state.song_name, this.state.song_artist);
+
+    let _youtubeUrl = await getYoutubeSearchId(_search);
+
+    this.setState({youtube_url: _youtubeUrl})
   }
 
-  GetUrlYoutube(search)
-  {
-    console.log(search); //TODO -TEST THAT IT WORKS WITH IS ULR 
-    fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&order=relevance&q='+search+'&key=AIzaSyDuNGLnUASRTFPRSbPrNldPrql53vRqm8E',
-    {
-      mode: 'cors'
-    })
-    .then(response => response.json())
-    .then(data => {
-      if(!data) return;
-      this.setState({videoData: data});
-    });
+  getEncodedSearchUri = (songName, songArtist) => {
+    return encodeURI(songName + ' ' + songArtist);
   }
-
 
   render() {
     return (
@@ -136,8 +109,8 @@ class App extends Component {
             <h4>Current Song: {this.state.song_name}</h4>
             <h4>Artist: {this.state.song_artist}</h4>
 
-            {/* {this.state.videoData.items ? 
-            <YoutubePlayer videoId={this.state.videoData.items[0].id.videoId}/> : <h5>NoVideo</h5>} */}
+            {this.state.youtube_url ? 
+            <YoutubePlayer videoId={this.state.youtube_url}/> : <h5>NoVideoFound</h5>}
 
           </div> : <div>
               <button onClick={() => window.location = 'http://localhost:8888/login'}

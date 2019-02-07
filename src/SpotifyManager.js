@@ -1,17 +1,21 @@
 export const getUserData = async (accessToken) => {
-    if(!accessToken) return null;
+    if(!accessToken) return missingAccesTokenError();
     let _return =  await fetch('https://api.spotify.com/v1/me',
     {headers: {'Authorization': 'Bearer ' + accessToken}})
     .then(response => response.json())
     .then(data => {
-        if(data.error) return null;
+        if(data.error) 
+        {
+            console.error(data)
+            return null;
+        }
         return data;
     });
     return _return;          
 }
 
 export const getCurrentSongData = async (accessToken) => {
-    if(!accessToken) return null;
+    if(!accessToken) return missingAccesTokenError();
     let _return =  await fetch('https://api.spotify.com/v1/me/player/currently-playing',
     {headers: {'Authorization': 'Bearer ' + accessToken}})
     .then(response => response.json())
@@ -24,4 +28,9 @@ export const getCurrentSongData = async (accessToken) => {
         return data;
     });
     return _return;
+}
+
+const missingAccesTokenError = () => {
+    console.error('Missing accesToken SpotifyManager.js');
+    return null;
 }
