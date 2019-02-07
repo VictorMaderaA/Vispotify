@@ -1,0 +1,22 @@
+{
+  "country": "MX",
+  "display_name": "Víctor René",
+  "email": "vrene_ma@hotmail.com",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/user/1283489684"
+  },
+  "followers": {
+    "href": null,
+    "total": 28
+  },
+  "href": "https://api.spotify.com/v1/users/1283489684",
+  "id": "1283489684",
+  "images": [{
+    "height": null,
+    "url": "https://scontent.xx.fbcdn.net/v/t1.0-1/p200x200/31299610_1690950040960748_1833482317021052928_n.jpg?_nc_cat=102&_nc_ht=scontent.xx&oh=fe7b01899d93aa86a91368f5aa7aad13&oe=5CB5C863",
+    "width": null
+  }],
+  "product": "premium",
+  "type": "user",
+  "uri": "spotify:user:1283489684"
+}
