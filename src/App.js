@@ -10,18 +10,20 @@ let defaultStyle = {
   color: '#fff'
 };
 
-let dataPlis;
-
 class App extends Component {
   constructor() {
     super();
+
     this.state = {
       user_display_name: null,
       user_email: null,
       user_id: null,
       user_image_url: null,
 
-      songData: {}
+      song_name: null,
+      song_artist: null,
+
+      logged_in: null
     }
 
     this.prevSong = {
@@ -30,18 +32,26 @@ class App extends Component {
     }    
   }
 
+
+
   componentDidMount() {
+
     let parsed = queryString.parse(window.location.search);
     let accessToken = parsed.access_token;
 
-    getUserData(accessToken).then(data => this.setUserData(data));
-    console.log(this.state);
+    if(!accessToken) return; 
+
+    getUserData(accessToken);
+
+    this.startFetchingData(accessToken);
+
+
 
     // let _songData = getCurrentSongData(accessToken);
     // if(_songData) this.songData = _songData;
     // console.log(this.songData);
 
-    if(!accessToken) return; 
+   
 
     // this.update(accessToken);
     // setInterval(() => {   
@@ -49,9 +59,27 @@ class App extends Component {
     // }, 10000)
   }
 
+  startFetchingData = async(accessToken) => {
+    // getUserData(accessToken).then(data => this.setUserData(data));
+    let _userData = await getUserData(accessToken);
+    let _songData = await getCurrentSongData(accessToken);
+
+    console.log(JSON.stringify(_songData));
+
+    this.setUserData(_userData);
+    //this.setSongData(_songData);
+    this.setState({logged_in: true});
+  }
+
+
   setUserData = (data) => {
-    console.log('Set User Data')
-    console.log(JSON.stringify(data));
+    this.setState({user_display_name: data.display_name});
+    this.setState({user_email: data.email});
+    this.setState({user_id: data.id});
+    this.setState({user_image_url: data.images[0].url});
+  }
+
+  setSongData = (data) => {
     this.setState({user_display_name: data.display_name});
     this.setState({user_email: data.email});
     this.setState({user_id: data.id});
@@ -98,18 +126,18 @@ class App extends Component {
     return (
       <div className="App">
         {
-          this.userData ?
+          this.state.logged_in ?
           <div>
             <h1 style={{...defaultStyle, 'fontSize': '54px'}}>Vispotify</h1>
             <h2 style={{...defaultStyle, 'fontSize': '34px'}}>See your music</h2>
             <h3 style={{...defaultStyle, 'fontSize': '24px'}}>
-              Connected to {this.userData.display_name} Account
+              Connected to {this.state.user_display_name} Account
             </h3>
-            <h4>Current Song: {this.state.songData.name}</h4>
-            <h4>Artist: {this.state.songData.artists && this.state.songData.artists[0].name}</h4>
+            <h4>Current Song: {this.state.song_name}</h4>
+            <h4>Artist: {this.state.song_artist}</h4>
 
-            {this.state.videoData.items ? 
-            <YoutubePlayer videoId={this.state.videoData.items[0].id.videoId}/> : <h5>NoVideo</h5>}
+            {/* {this.state.videoData.items ? 
+            <YoutubePlayer videoId={this.state.videoData.items[0].id.videoId}/> : <h5>NoVideo</h5>} */}
 
           </div> : <div>
               <button onClick={() => window.location = 'http://localhost:8888/login'}
