@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import queryString from 'query-string';
 import YoutubePlayer from './YoutubePlayer.js';
-import { getUserData, getCurrentSongData}  from './SpotifyManager';
+import { getUserData, getCurrentSongData, pausePlayback, nextTrack}  from './SpotifyManager';
 import { getYoutubeSearchId } from './YoutubeManager'
 
 
@@ -27,13 +27,9 @@ class App extends Component {
 
       youtube_url: null,
 
-      logged_in: null
+      logged_in: null,
+      accessToken: null
     }
-
-    this.prevSong = {
-      name: '',
-      artist:''
-    }    
   }
 
 
@@ -42,6 +38,7 @@ class App extends Component {
 
     let parsed = queryString.parse(window.location.search);
     let accessToken = parsed.access_token;
+    this.setState({accessToken: accessToken});
 
     if(!accessToken) return; 
 
@@ -58,9 +55,9 @@ class App extends Component {
       this.setUserData(_userData);
       this.setState({logged_in: true});
       this.update_checkCurrentSong(accessToken);
+      await pausePlayback(this.state.accessToken);
     }
   }
-
 
   setUserData = (data) => {
     this.setState({user_display_name: data.display_name});
@@ -76,7 +73,7 @@ class App extends Component {
     this.setState({song_duration_ms: data.duration_ms});
   }
 
-  update_checkCurrentSong = async (accessToken) => {    
+  update_checkCurrentSong = async (accessToken) => {
     let _songData = await getCurrentSongData(accessToken);
 
     if(!_songData) return;
@@ -95,6 +92,17 @@ class App extends Component {
     return encodeURI(songName + ' ' + songArtist);
   }
 
+
+  callbackYoutubePlayer = async () => {
+    console.log('Calback youtube player');
+    await nextTrack(this.state.accessToken);
+    await pausePlayback(this.state.accessToken);
+    setTimeout(() => {
+      this.update_checkCurrentSong(this.state.accessToken); 
+    }, 1500);
+    
+  }
+
   render() {
     return (
       <div className="App">
@@ -110,7 +118,7 @@ class App extends Component {
             <h4>Artist: {this.state.song_artist}</h4>
 
             {this.state.youtube_url ? 
-            <YoutubePlayer videoId={this.state.youtube_url}/> : <h5>NoVideoFound</h5>}
+            <YoutubePlayer videoId={this.state.youtube_url} callbackYoutubePlayer={this.callbackYoutubePlayer}/> : <h5>NoVideoFound</h5>}
 
           </div> : <div>
               <button onClick={() => window.location = 'http://localhost:8888/login'}
@@ -121,4 +129,5 @@ class App extends Component {
     );
   }
 }
+
 export default App;
