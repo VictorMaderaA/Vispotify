@@ -63,6 +63,14 @@ export const getDevices = async (accessToken) => {
     return _return;
 }
 
+export const saveCurrentSong = async (accessToken, trackId) => {
+    if(!accessToken) return missingAccesTokenError();
+    let _return =  await fetch('https://api.spotify.com/v1/me/tracks?ids='+trackId,
+    {method: 'PUT', headers: {'Authorization': 'Bearer ' + accessToken}})
+    .then(response => {/*console.log(response)*/});
+    return _return;
+}
+
 const missingAccesTokenError = () => {
     console.error('Missing accesToken SpotifyManager.js');
     return null;

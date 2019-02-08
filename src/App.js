@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import './App.css';
 import queryString from 'query-string';
 import YoutubePlayer from './YoutubePlayer.js';
-import { getUserData, getCurrentSongData, pausePlayback, nextTrack}  from './SpotifyManager';
+import { getUserData, getCurrentSongData,
+   pausePlayback, nextTrack, saveCurrentSong}  from './SpotifyManager';
 import { getYoutubeSearchId } from './YoutubeManager'
 
 
@@ -125,6 +126,10 @@ class App extends Component {
     this.update_checkCurrentSong(this.state.accessToken); 
   }
 
+  button_saveSong = () => {
+    saveCurrentSong(this.state.accessToken,this.state.song_id)
+  }
+
   render() {
     return (
       <div className="App">
@@ -147,6 +152,7 @@ class App extends Component {
                 callbackYoutubePlayer={this.callbackYoutubePlayer}/> : this.state.app_running && <h5>NoVideoFound</h5>}
                 <button onClick={this.forceUpdate}>Force Update</button>
                 <button onClick={this.nextTrack}>NextSong</button>
+                <button onClick={this.button_saveSong}>Save (+)</button>
               </div> :
               <h5 style={{...defaultStyle, 'fontSize': '10px'}}>App currently not running</h5>
             }
