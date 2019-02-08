@@ -28,6 +28,7 @@ class App extends Component {
       youtube_url: null,
 
       logged_in: null,
+      app_running: false,
       accessToken: null
     }
   }
@@ -54,8 +55,6 @@ class App extends Component {
     {
       this.setUserData(_userData);
       this.setState({logged_in: true});
-      this.update_checkCurrentSong(accessToken);
-      await pausePlayback(this.state.accessToken);
     }
   }
 
@@ -74,12 +73,7 @@ class App extends Component {
   }
 
   update_checkCurrentSong = async (accessToken) => {
-    let _songData = await getCurrentSongData(accessToken);
-
-    if(!_songData) return;
-    if(this.state.song_id === _songData.item.id) return
-
-    this.setSongData(_songData);
+    if(!await this.getSetSongData()) return
 
     let _search = this.getEncodedSearchUri(this.state.song_name, this.state.song_artist);
 
@@ -92,14 +86,43 @@ class App extends Component {
     return encodeURI(songName + ' ' + songArtist);
   }
 
+  getSetSongData = async () => {
+    let _songData = await getCurrentSongData(this.state.accessToken);
+    if(!_songData) return false;
+    if(this.state.song_id === _songData.item.id) return false
+    this.setSongData(_songData);
+    return true;
+  }
+
 
   callbackYoutubePlayer = async () => {
+    this.nextTrack();
+  }
+
+  startApp = () => {
+    if(this.state.app_running){
+      this.setState({app_running: false});
+      console.log('Stop App')
+    }
+    else{
+      this.update_checkCurrentSong(this.state.accessToken);
+      pausePlayback(this.state.accessToken);
+      this.setState({app_running: true});
+      console.log('Start App')
+    }
+  }
+
+  nextTrack = async () => {
     await nextTrack(this.state.accessToken);
     await pausePlayback(this.state.accessToken);
     setTimeout(() => {
       this.update_checkCurrentSong(this.state.accessToken); 
     }, 1500);
-    
+  }
+
+  forceUpdate = async () => {
+    await pausePlayback(this.state.accessToken);
+    this.update_checkCurrentSong(this.state.accessToken); 
   }
 
   render() {
@@ -113,11 +136,21 @@ class App extends Component {
             <h3 style={{...defaultStyle, 'fontSize': '24px'}}>
               Connected to {this.state.user_display_name} Account
             </h3>
-            <h4>Current Song: {this.state.song_name}</h4>
-            <h4>Artist: {this.state.song_artist}</h4>
+            <h4 style={{...defaultStyle, 'fontSize': '12px'}}>Current Song: {this.state.song_name}</h4>
+            <h4 style={{...defaultStyle, 'fontSize': '12px'}}>Artist: {this.state.song_artist}</h4>
 
-            {this.state.youtube_url ? 
-            <YoutubePlayer videoId={this.state.youtube_url} callbackYoutubePlayer={this.callbackYoutubePlayer}/> : <h5>NoVideoFound</h5>}
+            <button onClick={this.startApp}>{this.state.app_running ? 'Stop App' : 'Start App'}</button>
+            {
+              this.state.app_running ?
+              <div>
+                {this.state.youtube_url ? <YoutubePlayer videoId={this.state.youtube_url} 
+                callbackYoutubePlayer={this.callbackYoutubePlayer}/> : this.state.app_running && <h5>NoVideoFound</h5>}
+                <button onClick={this.forceUpdate}>Force Update</button>
+                <button onClick={this.nextTrack}>NextSong</button>
+              </div> :
+              <h5 style={{...defaultStyle, 'fontSize': '10px'}}>App currently not running</h5>
+            }
+            
 
           </div> : <div>
               <button onClick={() => window.location = 'http://localhost:8888/login'}

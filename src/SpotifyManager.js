@@ -11,6 +11,7 @@ export const getUserData = async (accessToken) => {
         }
         return data;
     });
+    console.log(JSON.stringify(_return));
     return _return;          
 }
 
