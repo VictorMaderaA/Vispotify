@@ -31,11 +31,10 @@ export const getCurrentSongData = async (accessToken) => {
 }
 
 export const pausePlayback = async (accessToken) => {
-    nextTrack(accessToken);
     if(!accessToken) return missingAccesTokenError();
     let _return =  await fetch('https://api.spotify.com/v1/me/player/pause',
     {method: 'PUT', headers: {'Authorization': 'Bearer ' + accessToken}})
-    .then(response => console.log(response));
+    .then(response => {/*console.log(response)*/});
     return _return;
 }
 
@@ -43,8 +42,7 @@ export const nextTrack = async (accessToken) => {
     if(!accessToken) return missingAccesTokenError();
     let _return =  await fetch('https://api.spotify.com/v1/me/player/next',
     {method: 'POST', headers: {'Authorization': 'Bearer ' + accessToken}})
-    .then(response => console.log(response));
-    console.log(_return);
+    .then(response => {/*console.log(response)*/});
     return _return;
 }
 
@@ -61,7 +59,6 @@ export const getDevices = async (accessToken) => {
         }
         return data;
     });
-    console.log(_return);
     return _return;
 }
 

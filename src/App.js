@@ -94,7 +94,6 @@ class App extends Component {
 
 
   callbackYoutubePlayer = async () => {
-    console.log('Calback youtube player');
     await nextTrack(this.state.accessToken);
     await pausePlayback(this.state.accessToken);
     setTimeout(() => {

@@ -7,7 +7,6 @@ class YoutubePlayer extends Component
   constructor(){
     super();
     this._onEnded = this._onEnded.bind(this);
-
   }
 
   render()
@@ -29,7 +28,6 @@ class YoutubePlayer extends Component
   }
 
   _onEnded(event) {
-    console.log('Fin del video');
     this.props.callbackYoutubePlayer();
   }
 
