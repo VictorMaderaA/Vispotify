@@ -66,27 +66,34 @@ export function UseYoutubeMode(props) {
             console.log('update youtubeVideoFinished')
             // Lanzamos la siguiente cancion
             await nextTrack(access_token)
-            // Obtenemos la data de spotify y Youtube
-            const data = await getDataSpotifysYoutube()
-            if (state.keepSpotifyPlaying) {
-                // Si keepSpotifyPlaying empezamos el playback y seteamos un timeout 10 segundos antes que acabe cancion
-                // Esto para que cuenten las reproducciones en spotify
-                console.log('PAUSE SONG IN:', data.duration_ms - data.progress_ms - 10000)
-                setTimeout(() => {
+
+            setTimeout(async () => {
+                // Obtenemos la data de spotify y Youtube
+                const data = await getDataSpotifysYoutube()
+                if (state.keepSpotifyPlaying) {
+                    // Si keepSpotifyPlaying empezamos el playback y seteamos un timeout 10 segundos antes que acabe cancion
+                    // Esto para que cuenten las reproducciones en spotify
+                    console.log('PAUSE SONG IN:', data.duration_ms - data.progress_ms - 10000)
+                    setTimeout(() => {
+                        pausePlayback(access_token);
+                    }, data.duration_ms - data.progress_ms - 5000);
+                } else {
+                    // Su no keepSpotifyPlaying, pausamos la resproduccion en spotify
                     pausePlayback(access_token);
-                }, data.duration_ms - data.progress_ms - 5000);
-            } else {
-                // Su no keepSpotifyPlaying, pausamos la resproduccion en spotify
-                pausePlayback(access_token);
-            }
+                }
+                setState({
+                    ...state,
+                    prev_songName: state.songName,
+                    prev_songArtist: state.songArtist,
+                    songName: data.songName,
+                    songArtist: data.songArtist,
+                    youtubeVideoId: data.youtubeVideoId,
+                    youtubeVideoFinished: false
+                })
+            }, 1500);
             // set la var youtubeVideoFinished false
             setState({
                 ...state,
-                prev_songName: state.songName,
-                prev_songArtist: state.songArtist,
-                songName: data.songName,
-                songArtist: data.songArtist,
-                youtubeVideoId: data.youtubeVideoId,
                 youtubeVideoFinished: false
             })
         }
