@@ -9,6 +9,7 @@ services:
 #      args:
 #        REACT_APP_SERVER_URL: "http://localhost:13001"
 #        REACT_APP_YOUTUBE_DATA_API_KEY: "xxx"
+    restart: always
     depends_on:
       - server
     ports:
@@ -23,5 +24,6 @@ services:
 #        APP_URL: "http://localhost:13000"
 #        SPOTIFY_CLIENT_ID: "xxx"
 #        SPOTIFY_CLIENT_SECRET: "xxx"
+    restart: always
     ports:
       - "13001:3000"
