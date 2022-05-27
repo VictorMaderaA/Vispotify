@@ -73,10 +73,9 @@ export function UseYoutubeMode(props) {
                 if (state.keepSpotifyPlaying) {
                     // Si keepSpotifyPlaying empezamos el playback y seteamos un timeout 10 segundos antes que acabe cancion
                     // Esto para que cuenten las reproducciones en spotify
-                    console.log('PAUSE SONG IN:', data.duration_ms - data.progress_ms - 10000)
                     setTimeout(() => {
                         pausePlayback(access_token);
-                    }, data.duration_ms - data.progress_ms - 5000);
+                    }, data.duration_ms - data.progress_ms - 10000); // TODO TAKE IN COUNT CROSSFADE
                 } else {
                     // Su no keepSpotifyPlaying, pausamos la resproduccion en spotify
                     pausePlayback(access_token);
