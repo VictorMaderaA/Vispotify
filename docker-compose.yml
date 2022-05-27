@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  app:
+    image: vispotify_app
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+#      args:
+#        REACT_APP_SERVER_URL: "http://localhost:13001"
+#        REACT_APP_YOUTUBE_DATA_API_KEY: "xxx"
+    depends_on:
+      - server
+    ports:
+      - "13000:3000"
+
+  server:
+    container_name: vispotify_server
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+#      args:
+#        APP_URL: "http://localhost:13000"
+#        SPOTIFY_CLIENT_ID: "xxx"
+#        SPOTIFY_CLIENT_SECRET: "xxx"
+    ports:
+      - "13001:3000"

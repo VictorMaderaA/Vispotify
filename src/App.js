@@ -1,19 +1,29 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import {LoggedIn} from "./components/LoggedIn";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {Login} from "./views/Login";
+import {App as Application} from "./views/App";
+import {SpotifyLoginCallback} from "./components/SpotifyLoginCallback";
+
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/">
+                    <Route index element={<Login/>} />
+                </Route>
+                <Route path="/callback">
+                    <Route index element={<SpotifyLoginCallback/>} />
+                </Route>
+
+                <Route path="/app" element={<LoggedIn/>}>
+                    <Route index element={<Application/>} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
     );
   }
 }
