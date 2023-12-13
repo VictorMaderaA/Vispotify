@@ -52,25 +52,25 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./server
-          file: Dockerfile
+          file: ./server/Dockerfile
           push: true
           tags: 438930360577.dkr.ecr.eu-west-2.amazonaws.com/vispotify-server:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-#      - name: Tailscale
-#        uses: tailscale/github-action@v2
-#        with:
-#          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-#          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-#          tags: tag:ci
-#
-#      - name: Establecer conexión SSH
-#        uses: webfactory/ssh-agent@v0.5.3
-#        with:
-#          ssh-private-key: ${{ secrets.STAGING_HS_KEY }}
-#
-#      - name: Conectar al droplet y desplegar
-#        run: |
-#          ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vm_web && docker-compose up -d vm_web'
-#          ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'docker image prune -a -f'
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Establecer conexión SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.STAGING_HS_KEY }}
+
+      - name: Conectar al droplet y desplegar
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vispotify_app && docker-compose up -d vispotify_app'
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vispotify_server && docker-compose up -d vispotify_server'
