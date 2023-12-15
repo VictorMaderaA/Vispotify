@@ -72,6 +72,5 @@ jobs:
 
       - name: Conectar al droplet y desplegar
         run: |
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }}  'aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 438930360577.dkr.ecr.eu-west-2.amazonaws.com'
           ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vispotify_app && docker-compose up -d vispotify_app'
           ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vispotify_server && docker-compose up -d vispotify_server'
