@@ -74,3 +74,4 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vispotify_app && docker-compose up -d vispotify_app'
           ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'cd /home/develop/opt/registryContainers && docker-compose pull vispotify_server && docker-compose up -d vispotify_server'
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.STAGING_HS_IP }} 'docker image prune -a -f'
